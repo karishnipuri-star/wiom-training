@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Wiom · Belief Break Training</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" />
+<style>
+/* ── DESIGN TOKENS (exact match to mockup) ── */
+:root {
+  --brand-primary: #D9008D;
+  --brand-tint:    #FFE5F6;
+  --bg-screen:     #FAF9FC;
+  --bg-surface:    #FFFFFF;
+  --text-primary:  #161021;
+  --text-secondary:#5C5570;
+  --text-hint:     #A7A1B2;
+  --text-on-brand: #FFFFFF;
+  --bg-disabled:   #D7D3E0;
+  --state-positive:#008043;
+  --state-negative:#D92130;
+  --bg-positive:   #E1FAED;
+  --bg-negative:   #FFE5E7;
+  --stroke-primary:#E8E4F0;
+  --bg-page:       #ECEAF2;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+
+.hi { font-family: "Noto Sans Devanagari", -apple-system, sans-serif; }
+
+/* ── APP SHELL ── */
+#app {
+  width: 100%;
+  max-width: 390px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: var(--bg-screen);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── STATUS BAR ── */
+.status-bar {
+  background: var(--brand-tint);
+  height: 28px;
+  padding: 0 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ── PROGRESS DOTS ── */
+.progress-strip {
+  background: var(--brand-tint);
+  padding: 2px 18px 8px;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.p-dot {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(217,0,141,0.18);
+  transition: all 0.3s;
+  width: 8px;
+}
+.p-dot.done  { background: var(--state-positive); }
+.p-dot.active{ background: var(--brand-primary); width: 20px; }
+
+/* ── PINK TOP ── */
+.pink-top {
+  background: var(--brand-tint);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 16px;
+  flex-shrink: 0;
+}
+.pink-top.large { height: 155px; }
+.pink-top.small { height: 94px;  }
+
+.icon-circle {
+  background: var(--bg-surface);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-circle.large { width: 76px; height: 76px; }
+.icon-circle.small { width: 52px; height: 52px; }
+.icon-circle.large .material-icons { color: var(--brand-primary); font-size: 38px; }
+.icon-circle.small .material-icons { color: var(--brand-primary); font-size: 26px; }
+
+/* ── CONTENT AREA ── */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 18px 18px;
+  overflow-y: auto;
+}
+
+.title {
+  font-size: 21px;
+  line-height: 1.18;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.body-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 12px;
+}
+.body-list li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 10px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.body-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: -2px;
+  color: var(--brand-primary);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.question {
+  font-size: 17px;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+}
+.question.dim {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.spacer { flex: 1; min-height: 12px; }
+
+/* ── CTA BUTTON ── */
+.cta {
+  background: var(--brand-primary);
+  color: var(--text-on-brand);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  min-height: 48px;
+  font-family: "Noto Sans Devanagari", "Inter", sans-serif;
+  transition: opacity 0.15s;
+}
+.cta:active { opacity: 0.82; }
+.cta.disabled {
+  background: var(--bg-disabled);
+  color: var(--text-hint);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── QUIZ OPTIONS ── */
+.opt {
+  border: 1.5px solid var(--stroke-primary);
+  background: var(--bg-surface);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+.opt .radio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--text-hint);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.opt.selected {
+  border-color: var(--brand-primary);
+  background: var(--brand-tint);
+  font-weight: 600;
+}
+.opt.selected .radio {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  box-shadow: inset 0 0 0 3px white;
+}
+.opt.correct {
+  border-color: var(--state-positive);
+  background: var(--bg-positive);
+  font-weight: 600;
+}
+.opt.correct .radio {
+  background: var(--state-positive);
+  border-color: var(--state-positive);
+  box-shadow: inset 0 0 0 3px white;
+}
+.opt.wrong-pick {
+  border-color: var(--state-negative);
+  background: var(--bg-negative);
+  font-weight: 600;
+}
+.opt.wrong-pick .radio {
+  background: var(--state-negative);
+  border-color: var(--state-negative);
+  box-shadow: inset 0 0 0 3px white;
+}
+
+/* ── CORRECTION BOX ── */
+.correction-box {
+  background: var(--bg-positive);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--state-positive);
+  font-size: 12.5px;
+  line-height: 1.55;
+  font-weight: 600;
+  margin: 10px 0 4px;
+}
+
+/* ── RIGHT ANSWER STATE ── */
+.right-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.check-big {
+  width: 76px;
+  height: 76px;
+  background: var(--state-positive);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.check-big .material-icons { color: white; font-size: 46px; }
+.right-stack h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--state-positive);
+}
+.right-stack .auto-dismiss {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── GESTURE BAR ── */
+.gesture-bar {
+  height: 18px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.gesture-bar::after {
+  content: "";
+  width: 88px;
+  height: 4px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  opacity: 0.12;
+}
+
+/* ── START SCREEN ── */
+.start-top {
+  background: var(--brand-tint);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 20px 24px;
+}
+.start-logo {
+  width: 72px; height: 72px;
+  background: var(--bg-surface);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.start-logo .material-icons { color: var(--brand-primary); font-size: 36px; }
+.start-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.start-sub   { font-size: 13px; color: var(--text-secondary); text-align: center; }
+
+.case-list { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.case-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  border-radius: 10px;
+  border: 1.5px solid var(--stroke-primary);
+}
+.case-item .ci-icon { color: var(--brand-primary); font-size: 20px; flex-shrink: 0; }
+.case-item .ci-id   { font-size: 10px; font-weight: 700; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px; }
+.case-item .ci-text { font-size: 13px; color: var(--text-secondary); line-height: 1.3; }
+
+/* ── COMPLETE SCREEN ── */
+.complete-top {
+  background: var(--bg-positive);
+  padding: 32px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.complete-top h2 { font-size: 22px; font-weight: 700; color: var(--state-positive); }
+.complete-top p  { font-size: 13px; color: var(--state-positive); opacity: 0.8; }
+
+.summary-list { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+.summary-item {
+  background: var(--bg-positive);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.summary-item .s-id   { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--state-positive); opacity: 0.75; display: block; margin-bottom: 3px; }
+.summary-item .s-text { font-size: 13px; color: var(--state-positive); font-weight: 600; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ═══════════════════════════════════════════════════════
+   CONTENT — edit here to change any text
+   ═══════════════════════════════════════════════════════ */
+const CASES = [
+  {
+    id: '1',
+    icon: 'router',
+    informTitle: 'Carry fee लगना शुरू हो गया है',
+    informBullets: [
+      'आज से हर दिन ₹2/दिन carry fee कटना शुरू हो गया है',
+      'एक NetBox आपके पास 15 दिन से ऊपर से रखा हुआ है',
+      'वो NetBox Wiom को वापस भेजें',
+    ],
+    question: 'इस शुल्क को रोकने के लिए क्या करना है?',
+    options: [
+      'कुछ नहीं — Wiom अपने आप रोक देगा',
+      'NetBox install करें या Wiom को वापस भेज दीजिए',
+      'सिर्फ़ install करना है',
+    ],
+    correctIndex: 1,
+    correction: 'सही जवाब: शुल्क रोकने के दो रास्ते हैं — NetBox ग्राहक के घर install करें या Wiom को वापस भेज दीजिए। दोनों ही काम करेंगे — कोई भी एक कीजिए, शुल्क आज ही रुक जाएगा।',
+  },
+  {
+    id: '2',
+    icon: 'local_shipping',
+    informTitle: 'Pickup पूरी हुई, ₹50 मिल गए',
+    informBullets: [
+      'अब NetBox के हर pickup पर ₹50 मिलेंगे',
+    ],
+    question: 'अगली pickup पर भी ₹50 मिलेंगे?',
+    options: [
+      'नहीं — पहली बार का bonus था',
+      'हाँ — हर successful pickup पर automatic',
+      'हाँ, लेकिन Wiom से माँगने पर',
+    ],
+    correctIndex: 1,
+    correction: 'सही जवाब: हर successful NetBox pickup पर ₹50 automatic आपके account में आ जाएँगे। माँगने की ज़रूरत नहीं — Wiom खुद हर बार जोड़ देता है। आज जो आए, वो हर बार आएँगे।',
+  },
+  {
+    id: '3',
+    icon: 'signal_cellular_alt',
+    informTitle: 'Connection सही से लगा — ₹300 मिल गया',
+    informBullets: [
+      'PayG plan के हर successful connection पर आपको ₹300 fixed मिल जाएँगे',
+    ],
+    question: 'अगला connection activate करने पर भी ₹300 मिलेंगे?',
+    options: [
+      'नहीं — पहले activation का bonus था',
+      'हाँ — हर successful activation पर automatic',
+      'हाँ, लेकिन Wiom से माँगने पर',
+    ],
+    correctIndex: 1,
+    correction: 'सही जवाब: हर successful connection activation पर ₹300 automatic आपके account में आ जाते हैं। माँगने की ज़रूरत नहीं — Wiom खुद हर बार जोड़ देता है। आज जो आए, वो हर बार आएँगे।',
+  },
+  {
+    id: '4',
+    icon: 'account_balance_wallet',
+    informTitle: 'पहली कमाई आपके wallet में आ गई',
+    informBullets: [
+      'पैसे हफ़्ते में दो दिन ही निकाल सकते हैं। मंगलवार और शुक्रवार।',
+      'यह नियम आपकी कमाई को safe रखता है',
+    ],
+    question: 'पैसे कब निकाल सकते हैं?',
+    options: [
+      'जब चाहें, कभी भी',
+      'हफ़्ते में 2 बार, तय दिनों पर',
+      'हर महीने के अंत में',
+    ],
+    correctIndex: 1,
+    correction: 'सही जवाब: हफ़्ते में 2 बार, तय दिनों पर ही पैसे निकाल सकते हैं। बाकी दिनों में withdraw button काम नहीं करेगा। यह नियम आपकी कमाई को safe रखने के लिए है।',
+  },
+  {
+    id: '5',
+    icon: 'star',
+    informTitle: 'आपका quality score active हो गया',
+    informBullets: [
+      'हर task पर आपका काम quality score बनाता है',
+      'अच्छा score = बोनस ज़्यादा + नया काम ज़्यादा',
+      'कमज़ोर score = बोनस कम + काम कम',
+    ],
+    question: 'Quality score का असर क्या है?',
+    options: [
+      'कुछ भी नहीं — काम तो मिलेगा ही',
+      'बोनस और नया काम दोनों पर',
+      'सिर्फ़ बोनस पर, काम पर नहीं',
+    ],
+    correctIndex: 1,
+    correction: 'सही जवाब: Quality score दोनों चीज़ों पर सीधा असर करता है — बोनस की राशि भी, और नया काम कितना मिलेगा वो भी। हर task पर अच्छा काम करना ही असली रास्ता है।',
+  },
+];
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════ */
+let screen         = 'start'; // 'start' | 'inform' | 'quiz' | 'complete'
+let caseIndex      = 0;
+let selectedOption = null;    // null | 0 | 1 | 2
+let submitted      = false;
+
+/* ═══════════════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════════════ */
+function nowTime() {
+  const d = new Date();
+  return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function statusBar() {
+  return `<div class="status-bar">
+    <span>${nowTime()}</span>
+    <span style="display:flex;gap:4px;align-items:center;font-size:11px;">📶 📶 🔋</span>
+  </div>`;
+}
+
+function progressDots() {
+  return `<div class="progress-strip">
+    ${CASES.map((_,i) => {
+      const cls = i < caseIndex ? 'done' : i === caseIndex ? 'active' : '';
+      return `<div class="p-dot ${cls}"></div>`;
+    }).join('')}
+  </div>`;
+}
+
+function gestureBar() {
+  return `<div class="gesture-bar"></div>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER FUNCTIONS
+   ═══════════════════════════════════════════════════════ */
+function renderStart() {
+  document.getElementById('app').innerHTML = `
+    <div class="start-top">
+      <div class="start-logo"><span class="material-icons">school</span></div>
+      <div class="start-title hi">Belief Break Training</div>
+      <div class="start-sub hi">5 scenarios · सही जवाब सीखें</div>
+    </div>
+    <div class="case-list">
+      ${CASES.map(c => `
+        <div class="case-item">
+          <span class="material-icons ci-icon">${c.icon}</span>
+          <div>
+            <span class="ci-id">${c.id}</span>
+            <span class="ci-text hi">${c.informTitle}</span>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div style="padding:0 18px 20px;">
+      <button class="cta hi" onclick="startTraining()">शुरू करें</button>
+    </div>
+    ${gestureBar()}
+  `;
+}
+
+function renderInform() {
+  const c = CASES[caseIndex];
+  document.getElementById('app').innerHTML = `
+    ${statusBar()}
+    ${progressDots()}
+    <div class="pink-top large">
+      <div class="icon-circle large"><span class="material-icons">${c.icon}</span></div>
+    </div>
+    <div class="content">
+      <div class="title hi">${c.informTitle}</div>
+      <ul class="body-list hi">
+        ${c.informBullets.map(b => `<li>${b}</li>`).join('')}
+      </ul>
+      <div class="spacer"></div>
+      <button class="cta hi" onclick="goToQuiz()">ठीक है</button>
+    </div>
+    ${gestureBar()}
+  `;
+}
+
+function renderQuiz() {
+  const c = CASES[caseIndex];
+  const isCorrect = submitted && selectedOption === c.correctIndex;
+  const isWrong   = submitted && !isCorrect;
+
+  /* ── Answered Right ── */
+  if (isCorrect) {
+    document.getElementById('app').innerHTML = `
+      ${statusBar()}
+      ${progressDots()}
+      <div class="pink-top small">
+        <div class="icon-circle small"><span class="material-icons">${c.icon}</span></div>
+      </div>
+      <div class="content">
+        <div class="right-stack">
+          <div class="check-big"><span class="material-icons">check</span></div>
+          <h3 class="hi">सही</h3>
+          <div class="auto-dismiss">auto-dismiss · 1.5s</div>
+        </div>
+      </div>
+      ${gestureBar()}
+    `;
+    setTimeout(advance, 1500);
+    return;
+  }
+
+  /* ── Quiz / Answered Wrong ── */
+  const optsHtml = c.options.map((opt, i) => {
+    let cls = 'opt';
+    if (submitted) {
+      if (i === selectedOption)  cls += ' wrong-pick';
+      else if (i === c.correctIndex) cls += ' correct';
+    } else if (i === selectedOption) {
+      cls += ' selected';
+    }
+    const click = submitted ? '' : `onclick="selectOption(${i})"`;
+    return `<div class="${cls}" ${click}>
+      <span class="radio"></span>
+      <span class="hi">${opt}</span>
+    </div>`;
+  }).join('');
+
+  const correctionHtml = isWrong
+    ? `<div class="correction-box hi">${c.correction}</div>` : '';
+
+  const qClass  = isWrong ? 'question dim hi' : 'question hi';
+  const btnDis  = (!submitted && selectedOption === null) ? ' disabled' : '';
+  const btnAct  = submitted ? 'onclick="advance()"' : 'onclick="submitAnswer()"';
+  const btnText = submitted ? 'ठीक है' : 'जवाब दें';
+
+  document.getElementById('app').innerHTML = `
+    ${statusBar()}
+    ${progressDots()}
+    <div class="pink-top small">
+      <div class="icon-circle small"><span class="material-icons">${c.icon}</span></div>
+    </div>
+    <div class="content">
+      <div class="${qClass}">${c.question}</div>
+      ${optsHtml}
+      ${correctionHtml}
+      <div class="spacer"></div>
+      <button class="cta hi${btnDis}" ${btnAct}>${btnText}</button>
+    </div>
+    ${gestureBar()}
+  `;
+}
+
+function renderComplete() {
+  document.getElementById('app').innerHTML = `
+    <div class="complete-top">
+      <div class="check-big" style="width:80px;height:80px;">
+        <span class="material-icons" style="font-size:48px;">check</span>
+      </div>
+      <h2 class="hi">बहुत बढ़िया!</h2>
+      <p class="hi">सभी 5 scenarios पूरे हुए</p>
+    </div>
+    <div class="summary-list">
+      ${CASES.map(c => `
+        <div class="summary-item">
+          <span class="s-id">${c.id} · ${c.informTitle}</span>
+          <span class="s-text hi">${c.options[c.correctIndex]}</span>
+        </div>`).join('')}
+    </div>
+    <div style="padding:0 18px 20px;">
+      <button class="cta hi" style="background:var(--state-positive);" onclick="restart()">फिर से देखें</button>
+    </div>
+    ${gestureBar()}
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATE TRANSITIONS
+   ═══════════════════════════════════════════════════════ */
+function render() {
+  if      (screen === 'start')    renderStart();
+  else if (screen === 'inform')   renderInform();
+  else if (screen === 'quiz')     renderQuiz();
+  else if (screen === 'complete') renderComplete();
+}
+
+function startTraining() {
+  caseIndex = 0; screen = 'inform'; render();
+}
+
+function goToQuiz() {
+  selectedOption = null; submitted = false; screen = 'quiz'; render();
+}
+
+function selectOption(i) {
+  if (submitted) return;
+  selectedOption = i; render();
+}
+
+function submitAnswer() {
+  if (selectedOption === null) return;
+  submitted = true; render();
+}
+
+function advance() {
+  if (caseIndex < CASES.length - 1) {
+    caseIndex++; screen = 'inform';
+  } else {
+    screen = 'complete';
+  }
+  render();
+}
+
+function restart() {
+  caseIndex = 0; selectedOption = null; submitted = false; screen = 'start'; render();
+}
+
+render();
+</script>
+</body>
+</html>
